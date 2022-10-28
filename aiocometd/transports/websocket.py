@@ -198,7 +198,7 @@ class WebSocketTransport(TransportBase):
         try:
             # send the outgoing payload
             await socket.send_json(payload, dumps=self._json_dumps)
-        except Exception as error:
+        except (Exception, asyncio.exceptions.CancelledError) as error:
             # set the error as the result for all pending exchanges
             self._set_exchange_errors(error)
             raise
@@ -244,7 +244,7 @@ class WebSocketTransport(TransportBase):
 
                 # set results of matching exchanges
                 self._set_exchange_results(response_payload)
-        except Exception as error:
+        except (Exception, asyncio.exceptions.CancelledError) as error:
             # set the error as the result for all pending exchanges
             self._set_exchange_errors(error)
             raise
@@ -257,7 +257,7 @@ class WebSocketTransport(TransportBase):
         # extract the result of the future
         try:
             result = future.result()
-        except Exception as error:  # pylint: disable=broad-except
+        except (Exception, asyncio.exceptions.CancelledError) as error:  # pylint: disable=broad-except
             result = error
         # clear the receive task
         self._receive_task = None
